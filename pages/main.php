@@ -67,15 +67,17 @@ session_start();
         </form>
     </div>
 
-    <!-- Modal
+    <!-- Modal-->
     <div id="modal" class="modal fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
         <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h3 id="modalTitle" class="text-lg font-bold mb-2">Título del Desafío</h3>
-            <p id="modalDescription" class="mb-4">Descripción del desafío...</p>
+            <h3 id="modalTitle" class="text-lg font-bold mb-2">Desafío de Fuerza</h3>
+            <p id="modalDescription" class="mb-4">Correr una Maraton de 20Km</p>
+            <p id="modalTime" class="mb-4">20 horas</p>
+            <p id="modalKg" class="mb-4">60 Calorias</p>
             <button id="checkButton" class="bg-green-500 text-white px-4 py-2 rounded">Completar Desafío</button>
             <button id="closeButton" class="bg-red-500 text-white px-4 py-2 rounded ml-2">Cerrar</button>
         </div>
-    </div> -->
+    </div> 
 
     <script>
         // Datos de ejemplo

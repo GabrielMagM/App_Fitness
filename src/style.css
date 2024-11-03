@@ -1,0 +1,10 @@
+:root{
+    --principal-color: #f0f0f0;
+    --secondary-color: #f0f0f0;
+    --tertiary-color: #f0f0f0;
+    --fuente-principal: "Itim", cursive;
+}
+
+h1, h2, h3, p{
+    font-family: var(--fuente-principal);
+}

@@ -105,55 +105,65 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
         </ul>
     </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 p-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-bold">Dashboard - <?php echo htmlspecialchars($user['name']); ?></h1>
-            <div class="flex items-center">
-                <a href="stats.php" class="text-gray-700 hover:text-blue-500 mr-4" title="Ver Estadísticas">
-                    <i class="fas fa-chart-line fa-lg"></i>
-                </a>
-                <a href="../assets/logout.php" class="text-gray-700 hover:text-red-500" title="Cerrar Sesión">
-                    <i class="fas fa-sign-out-alt fa-lg"></i>
-                </a>
-            </div>
+<!-- Main Content -->
+<div class="flex-1 p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Dashboard - <?php echo htmlspecialchars($user['name']); ?></h1>
+        <div class="flex items-center">
+            <a href="stats.php" class="text-gray-700 hover:text-blue-500 mr-4" title="Ver Estadísticas">
+                <i class="fas fa-chart-line fa-lg"></i>
+            </a>
+            <a href="../assets/logout.php" class="text-gray-700 hover:text-red-500" title="Cerrar Sesión">
+                <i class="fas fa-sign-out-alt fa-lg"></i>
+            </a>
         </div>
-
-        <h2 class="text-xl font-semibold mb-2 text-center">Desafíos Disponibles</h2>
-        <ul id="availableChallenges" class="mb-6">
-            <?php if (!empty($availableChallenges)): ?>
-                <?php foreach ($availableChallenges as $challenge): ?>
-                    <li class="mb-2 p-2 bg-white rounded shadow cursor-pointer hover:bg-gray-200">
-                        <?php echo htmlspecialchars($challenge['description']); ?>
-                        <form action="../assets/selectChallenge.php" method="POST" class="inline">
-                            <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
-                            <button type="submit" class="ml-4 text-blue-500 hover:underline">Unirse</button>
-                        </form>
-                    </li>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <li class="mb-2 p-2 bg-white rounded shadow">No hay desafíos disponibles en este momento.</li>
-            <?php endif; ?>
-        </ul>
-
-        <h2 class="text-xl font-semibold mb-2 text-center">Crear Nuevo Desafío</h2>
-        <form id="addChallenge" action="../assets/addChallenge.php" method="POST" class="bg-white p-4 rounded shadow">
-            <div class="mb-4">
-                <label for="description" class="block text-gray-700">Descripción</label>
-                <input type="text" id="description" name="description" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Descripción del desafío">
-            </div>
-            <div class="mb-4">
-                <label for="duration" class="block text-gray-700">Duración (días)</label>
-                <input type="number" id="duration" name="duration" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Duración del desafío">
-            </div>
-            <div class="mb-4">
-                <label for="goal" class="block text-gray-700">Objetivo</label>
-                <input type="text" id="goal" name="goal" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Objetivo del desafío">
-            </div>
-            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded">Crear Desafío</button>
-        </form>
     </div>
+
+    <h2 class="text-xl font-semibold mb-2 text-center">Desafíos Disponibles</h2>
+    <ul id="availableChallenges" class="mb-6">
+        <?php if (!empty($availableChallenges)): ?>
+            <?php foreach ($availableChallenges as $challenge): ?>
+                <li class="mb-2 p-2 bg-white rounded shadow cursor-pointer hover:bg-gray-200" onclick="openModal(<?php echo $challenge['id']; ?>)">
+                    <?php echo htmlspecialchars($challenge['description']); ?>
+                </li>
+
+                <!-- Modal para mostrar detalles del desafío -->
+                <div class="modal" id="modal-<?php echo $challenge['id']; ?>">
+                    <div class="modal-content">
+                        <h2 class="text-lg font-bold mb-2 text-black"><?php echo htmlspecialchars($challenge['description']); ?></h2>
+                        <p class="text-black"><strong>Duración:</strong> <?php echo htmlspecialchars($challenge['duration']); ?> días</p>
+                        <p class="text-black"><strong>Objetivo:</strong> <?php echo htmlspecialchars($challenge['goal']); ?></p>
+                        <form action="../assets/selectChallenge.php" method="POST">
+                            <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
+                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">Unirse al Desafío</button>
+                        </form>
+                        <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4" onclick="closeModal(<?php echo $challenge['id']; ?>)">Cerrar</button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <li class="mb-2 p-2 bg-white rounded shadow">No hay desafíos disponibles en este momento.</li>
+        <?php endif; ?>
+    </ul>
+
+    <h2 class="text-xl font-semibold mb-2 text-center">Crear Nuevo Desafío</h2>
+    <form id="addChallenge" action="../assets/addChallenge.php" method="POST" class="bg-white p-4 rounded shadow">
+        <div class="mb-4">
+            <label for="description" class="block text-gray-700">Descripción</label>
+            <input type="text" id="description" name="description" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Descripción del desafío">
+        </div>
+        <div class="mb-4">
+            <label for="duration" class="block text-gray-700">Duración (días)</label>
+            <input type="number" id="duration" name="duration" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Duración del desafío">
+        </div>
+        <div class="mb-4">
+            <label for="goal" class="block text-gray-700">Objetivo</label>
+            <input type="text" id="goal" name="goal" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Objetivo del desafío">
+        </div>
+        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded">Crear Desafío</button>
+    </form>
+</div>
 
 </body>
 </html>

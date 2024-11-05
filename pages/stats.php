@@ -1,5 +1,45 @@
 <?php
 session_start();
+require_once '../database/config.php'; // Asegúrate de incluir tu conexión a la base de datos
+
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
+
+// Obtener el ID del usuario
+$user_id = $_SESSION['user_id'];
+
+// Obtener el número de desafíos completados
+$stmt = $conn->prepare("SELECT COUNT(*) as completed_count FROM user_challenges WHERE user_id = ? AND completed = 1");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$completedChallenges = $result->fetch_assoc()['completed_count'];
+
+// Obtener el tiempo total en días de los desafíos completados
+$stmt = $conn->prepare("SELECT SUM(c.duration) as total_days FROM user_challenges uc JOIN challenges c ON uc.challenge_id = c.id WHERE uc.user_id = ? AND uc.completed = 1");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$totalDays = $result->fetch_assoc()['total_days'];
+
+// Calcular el progreso general (porcentaje de desafíos completados)
+$stmt = $conn->prepare("SELECT COUNT(*) as total_challenges FROM user_challenges WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$totalChallenges = $result->fetch_assoc()['total_challenges'];
+
+$overallProgress = $totalChallenges > 0 ? ($completedChallenges / $totalChallenges) * 100 : 0;
+
+// Obtener la lista de desafíos completados
+$stmt = $conn->prepare("SELECT c.description FROM user_challenges uc JOIN challenges c ON uc.challenge_id = c.id WHERE uc.user_id = ? AND uc.completed = 1");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$completedChallengesList = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -7,7 +47,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estadísticas</title>
+    <title>Estadísticas de Desafíos Fitness</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -27,23 +67,23 @@ session_start();
         <div class="grid grid-cols-3 gap-4 mb-6">
             <div class="bg-blue-500 text-white p-4 rounded-lg shadow">
                 <h2 class="text-lg font-bold">Desafíos Completados</h2>
-                <p id="completedChallenges" class="text-3xl">5</p>
+                <p id="completedChallenges" class="text-3xl"><?php echo $completedChallenges; ?></p>
             </div>
             <div class="bg-green-500 text-white p-4 rounded-lg shadow">
-                <h2 class="text-lg font-bold">Calorías Quemadas</h2>
-                <p id="caloriesBurned" class="text-3xl">1500</p>
+                <h2 class="text-lg font-bold">Tiempo Total</h2>
+                <p id="totalTime" class="text-3xl"><?php echo $totalDays ? $totalDays : 0; ?> días</p>
             </div>
             <div class="bg-yellow-500 text-white p-4 rounded-lg shadow">
                 <h2 class="text-lg font-bold">Progreso General</h2>
-                <p id="overallProgress" class="text-3xl">75%</p>
+                <p id="overallProgress" class="text-3xl"><?php echo round($overallProgress, 2); ?>%</p>
             </div>
         </div>
 
         <h2 class="text-xl font-semibold mb-2">Desafíos Completados</h2>
         <ul id="completedChallengesList" class="list-disc pl-5">
-            <li class="mb-2">Desafío 1: Pierde 5 kg en un mes</li>
-            <li class="mb-2">Desafío 2: Correr 5 km diariamente</li>
-            <li class="mb-2">Desafío 3: Hacer 50 flexiones diarias</li>
+            <?php foreach ($completedChallengesList as $challenge): ?>
+                <li class="mb-2"><?php echo htmlspecialchars($challenge['description']); ?></li>
+            <?php endforeach; ?>
         </ul>
     </div>
 
@@ -58,6 +98,12 @@ session_start();
             <i class="fas fa-sign-out-alt text-2xl"></i>
         </a>
     </div>
+
+    <script>
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+    </script>
 
 </body>
 </html>

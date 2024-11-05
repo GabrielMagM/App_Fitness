@@ -19,7 +19,7 @@ $user = $result->fetch_assoc();
 // Obtener desafíos disponibles (aquellos que no están completados por el usuario)
 $availableChallenges = $conn->query("
     SELECT * FROM challenges 
-    WHERE id NOT IN (SELECT challenge_id FROM user_challenges WHERE user_id = $user_id)
+    WHERE user_id = $user_id AND id NOT IN (SELECT challenge_id FROM user_challenges WHERE user_id = $user_id)
 ")->fetch_all(MYSQLI_ASSOC);
 
 // Obtener los desafíos del usuario (excluyendo los completados)

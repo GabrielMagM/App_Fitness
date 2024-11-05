@@ -72,8 +72,8 @@
       showItem(currentIndex);
     }
 
-    // Cambiar la imagen automáticamente cada 5 segundos
-    setInterval(nextItem, 5000);
+    // Cambiar la imagen automáticamente cada 3 segundos
+    setInterval(nextItem, 3000);
   </script>
 
 </body>

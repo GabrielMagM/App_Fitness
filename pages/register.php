@@ -21,7 +21,7 @@ session_start();
 
     <div class="bg-white bg-opacity-80 rounded-lg shadow-lg p-8 max-w-md w-full">
         <h2 class="text-2xl font-bold text-center mb-6">Registro</h2>
-        <form action="register.php" method="POST">
+        <form action="../assets/addUser.php" method="POST">
             <div class="mb-4">
                 <label for="name" class="block text-gray-700">Nombre</label>
                 <input type="text" id="name" name="name" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Tu nombre">

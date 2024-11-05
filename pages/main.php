@@ -16,11 +16,18 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
-// Obtener desafíos disponibles (aquellos que no están asignados a un usuario)
-$availableChallenges = $conn->query("SELECT * FROM challenges WHERE user_id IS NULL")->fetch_all(MYSQLI_ASSOC);
+// Obtener desafíos disponibles (aquellos que no están completados por el usuario)
+$availableChallenges = $conn->query("
+    SELECT * FROM challenges 
+    WHERE id NOT IN (SELECT challenge_id FROM user_challenges WHERE user_id = $user_id)
+")->fetch_all(MYSQLI_ASSOC);
 
-// Obtener los desafíos del usuario
-$userChallenges = $conn->prepare("SELECT c.* FROM user_challenges uc JOIN challenges c ON uc.challenge_id = c.id WHERE uc.user_id = ?");
+// Obtener los desafíos del usuario (excluyendo los completados)
+$userChallenges = $conn->prepare("
+    SELECT c.* FROM user_challenges uc 
+    JOIN challenges c ON uc.challenge_id = c.id 
+    WHERE uc.user_id = ? AND uc.completed = 0
+");
 $userChallenges->bind_param("i", $user_id);
 $userChallenges->execute();
 $userChallengesResult = $userChallenges->get_result();
@@ -38,11 +45,37 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
     <style>
         .modal {
             display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         .modal.active {
-            display: block;
+            display: flex;
         }
     </style>
+    <script>
+        function openModal(challengeId) {
+            document.getElementById('modal-' + challengeId).classList.add('active');
+        }
+        function closeModal(challengeId) {
+            document.getElementById('modal-' + challengeId).classList.remove('active');
+        }
+    </script>
 </head>
 <body class="flex h-screen bg-gray-100">
 
@@ -51,7 +84,23 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
         <h2 class="text-lg font-bold mb-4">Mis Desafíos</h2>
         <ul id="challengeList">
             <?php foreach ($challenges as $challenge): ?>
-                <li class="mb-2 p-2 bg-gray-700 rounded"><?php echo htmlspecialchars($challenge['description']); ?></li>
+                <li class="mb-2 p-2 bg-gray-700 rounded cursor-pointer" onclick="openModal(<?php echo $challenge['id']; ?>)">
+                    <?php echo htmlspecialchars($challenge['description']); ?>
+                </li>
+
+                <!-- Modal para mostrar detalles del desafío -->
+                <div class="modal" id="modal-<?php echo $challenge['id']; ?>">
+                    <div class="modal-content">
+                        <h2 class="text-lg font-bold mb-2 text-black"><?php echo htmlspecialchars($challenge['description']); ?></h2>
+                        <p class="text-black"><strong>Duración:</strong> <?php echo htmlspecialchars($challenge['duration']); ?> días</p>
+                        <p class="text-black"><strong>Objetivo:</strong> <?php echo htmlspecialchars($challenge['goal']); ?></p>
+                        <form action="../assets/completeChallenge.php" method="POST">
+                            <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
+                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">Completar Desafío</button>
+                        </form>
+                        <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4" onclick="closeModal(<?php echo $challenge['id']; ?>)">Cerrar</button>
+                    </div>
+                </div>
             <?php endforeach; ?>
         </ul>
     </div>
@@ -73,19 +122,23 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
 
         <h2 class="text-xl font-semibold mb-2 text-center">Desafíos Disponibles</h2>
         <ul id="availableChallenges" class="mb-6">
-            <?php foreach ($availableChallenges as $challenge): ?>
-                <li class="mb-2 p-2 bg-white rounded shadow cursor-pointer hover:bg-gray-200">
-                    <?php echo htmlspecialchars($challenge['description']); ?>
-                    <form action="../assets/selectChallenge.php" method="POST" class="inline">
-                        <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
-                        <button type="submit" class="ml-4 text-blue-500 hover:underline">Unirse</button>
-                    </form>
-                </li>
-            <?php endforeach; ?>
+            <?php if (!empty($availableChallenges)): ?>
+                <?php foreach ($availableChallenges as $challenge): ?>
+                    <li class="mb-2 p-2 bg-white rounded shadow cursor-pointer hover:bg-gray-200">
+                        <?php echo htmlspecialchars($challenge['description']); ?>
+                        <form action="../assets/selectChallenge.php" method="POST" class="inline">
+                            <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
+                            <button type="submit" class="ml-4 text-blue-500 hover:underline">Unirse</button>
+                        </form>
+                    </li>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <li class="mb-2 p-2 bg-white rounded shadow">No hay desafíos disponibles en este momento.</li>
+            <?php endif; ?>
         </ul>
 
         <h2 class="text-xl font-semibold mb-2 text-center">Crear Nuevo Desafío</h2>
-        <form id="addChallenge" action="../assets/addChallenge.php" Method="POST" class="bg-white p-4 rounded shadow">
+        <form id="addChallenge" action="../assets/addChallenge.php" method="POST" class="bg-white p-4 rounded shadow">
             <div class="mb-4">
                 <label for="description" class="block text-gray-700">Descripción</label>
                 <input type="text" id="description" name="description" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Descripción del desafío">

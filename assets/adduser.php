@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $conn->insert_id; // Guarda el ID del usuario en la sesión
         // Inserta Desafios por Default a los nuevos usuarios
         $user_id = $conn->insert_id;
-        $stmt = $conn->prepare("INSERT INTO challenges (user_id, description, duration, goal) VALUES 
+        $stmt = $conn->prepare("INSERT INTO challenges (user_id, title, duration, description) VALUES 
         (?, 'Desafío de 5km al día', 30, 'Correr 5 km diariamente'),
         (?, 'Desafío de abdominales', 14, 'Hacer 50 abdominales diarias'),
         (?, 'Desafío de agua', 7, 'Beber 2 litros de agua diarios')");

@@ -1,39 +1,3 @@
-<?php
-session_start();
-require_once '../database/config.php'; // Archivo que contiene la conexión a la base de datos
-
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
-
-// Obtener el nombre del usuario
-$user_id = $_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT name FROM users WHERE id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
-// Obtener desafíos disponibles (aquellos que no están completados por el usuario)
-$availableChallenges = $conn->query("
-    SELECT * FROM challenges 
-    WHERE user_id = $user_id AND id NOT IN (SELECT challenge_id FROM user_challenges WHERE user_id = $user_id)
-")->fetch_all(MYSQLI_ASSOC);
-
-// Obtener los desafíos del usuario (excluyendo los completados)
-$userChallenges = $conn->prepare("
-    SELECT c.* FROM user_challenges uc 
-    JOIN challenges c ON uc.challenge_id = c.id 
-    WHERE uc.user_id = ? AND uc.completed = 0
-");
-$userChallenges->bind_param("i", $user_id);
-$userChallenges->execute();
-$userChallengesResult = $userChallenges->get_result();
-$challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,24 +47,7 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
     <div class="bg-gray-800 text-white w-64 p-5">
         <h2 class="text-lg font-bold mb-4">Mis Desafíos</h2>
         <ul id="challengeList">
-            <?php foreach ($challenges as $challenge): ?>
-                <?php include '../assets/addChallenge.php'; ?>
-                <li class="mb-2 p-2 bg-gray-700 rounded cursor-pointer" onclick="openModal(<?php echo $challenge['id']; ?>)">
-                    <?php echo htmlspecialchars($challenge['description']); ?>
-                </li>
-
-                <!-- Modal para mostrar detalles del desafío -->
-                <div class="modal" id="modal-<?php echo $challenge['id']; ?>">
-                    <div class="modal-content">
-                        <?php include '../assets/getStagesChallenge.php'?>
-                        <form action="../assets/completeChallenge.php" method="POST">
-                            <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
-                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">Completar Desafío</button>
-                        </form>
-                        <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4" onclick="closeModal(<?php echo $challenge['id']; ?>)">Cerrar</button>
-                    </div>
-                </div>
-            <?php endforeach; ?>
+            
         </ul>
     </div>
 

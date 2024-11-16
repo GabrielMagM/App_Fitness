@@ -1,0 +1,39 @@
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE challenges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,  -- Relación con la tabla users
+  title VARCHAR(255) NOT NULL,
+  duration INT NOT NULL CHECK (duration <= 3),  -- Duración máxima de 3 días
+  description TEXT NOT NULL,
+  create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE stages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  challenge_id INT NOT NULL,  -- Relación con la tabla challenges
+  stage_num INT NOT NULL,  -- Número de la etapa dentro del desafío
+  title VARCHAR(255) NOT NULL,  -- Título de la etapa
+  description TEXT NOT NULL,  -- Descripción de la etapa
+  FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_challenges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,  -- Relación con la tabla users
+  challenge_id INT NOT NULL,  -- Relación con la tabla challenges
+  completed BOOLEAN DEFAULT FALSE,  -- Indica si el desafío fue completado
+  start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Fecha de inicio del desafío (por defecto es la fecha actual)
+  end_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Fecha de finalización por defecto es la fecha actual
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE
+);
+
+

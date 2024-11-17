@@ -1,57 +1,41 @@
--- MySQL dump 10.13  Distrib 8.0.18, for Win64 (x86_64)
---
--- Host: localhost    Database: desafios_fitness
--- ------------------------------------------------------
--- Server version	9.0.1
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `challenges`
---
-
-DROP TABLE IF EXISTS `challenges`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `challenges` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `description` text NOT NULL,
+  `description` text NOT NULL, -- Titulo del Desafio
   `duration` int NOT NULL,
-  `goal` text NOT NULL,
+  `goal` text NOT NULL, -- Descripción del Desafio
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `challenges_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `challenges`
---
+CREATE TABLE `stages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,  -- Relación con la tabla usuarios
+  `challenge_id` int NOT NULL, -- Relación con la tabla challenges
+  `stage_num` int NOT NULL,  -- Número de la etapa dentro del desafío
+  `stage_name` text NOT NULL,  -- ACCION de la etapa
+  `stage_goal` text NOT NULL,  -- Descripción de la etapa
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `challenge_id` (`challenge_id`),
+  CONSTRAINT `stages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `stages_ibfk_2` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-LOCK TABLES `challenges` WRITE;
-/*!40000 ALTER TABLE `challenges` DISABLE KEYS */;
-INSERT INTO `challenges` VALUES (1,1,'Desafío de 5km al día',30,'Correr 5 km diariamente','2024-11-05 19:44:17'),(2,1,'Desafío de abdominales',14,'Hacer 50 abdominales diarias','2024-11-05 19:44:17'),(3,1,'Desafío de agua',7,'Beber 2 litros de agua diarios','2024-11-05 19:44:17'),(4,4,'Desafio de buena alimentacion',7,'1 Semana comiendo verduras','2024-11-05 20:35:55'),(5,1,'Desafio ir al Gym',30,'Mes de Gymrat hasta ir al fallo','2024-11-05 20:39:39'),(6,5,'Desafío de 5km al día',30,'Correr 5 km diariamente','2024-11-05 20:40:51'),(7,5,'Desafío de abdominales',14,'Hacer 50 abdominales diarias','2024-11-05 20:40:51'),(8,5,'Desafío de agua',7,'Beber 2 litros de agua diarios','2024-11-05 20:40:51'),(9,5,'Desafio Gamer',7,'Una semana jugando sin parar al LOL','2024-11-05 20:41:11'),(10,5,'Desafio de Comida',2,'Abstinencia de comer por 2 dias','2024-11-05 21:11:50'),(11,6,'Desafío de 5km al día',30,'Correr 5 km diariamente','2024-11-05 21:13:18'),(12,6,'Desafío de abdominales',14,'Hacer 50 abdominales diarias','2024-11-05 21:13:18'),(13,6,'Desafío de agua',7,'Beber 2 litros de agua diarios','2024-11-05 21:13:18'),(14,6,'Desafio gamer',7,'Jugar una semana a LOL sin parar','2024-11-05 21:13:50');
-/*!40000 ALTER TABLE `challenges` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Table structure for table `user_challenges`
---
-
-DROP TABLE IF EXISTS `user_challenges`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_challenges` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
@@ -64,58 +48,8 @@ CREATE TABLE `user_challenges` (
   KEY `challenge_id` (`challenge_id`),
   CONSTRAINT `user_challenges_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `user_challenges_ibfk_2` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `user_challenges`
---
 
-LOCK TABLES `user_challenges` WRITE;
-/*!40000 ALTER TABLE `user_challenges` DISABLE KEYS */;
-INSERT INTO `user_challenges` VALUES (1,1,1,1,'2024-11-05',NULL),(2,1,2,1,'2024-11-05','2024-11-05'),(3,1,3,0,'2024-11-05',NULL),(4,2,1,0,'2024-11-05',NULL),(5,4,2,1,'2024-11-05','2024-11-05'),(6,4,3,1,'2024-11-05','2024-11-05'),(7,4,4,1,'2024-11-05','2024-11-05'),(8,1,5,1,'2024-11-05','2024-11-05'),(9,5,9,1,'2024-11-05','2024-11-05'),(10,5,6,1,'2024-11-05','2024-11-05'),(11,5,7,0,'2024-11-05',NULL),(12,6,14,1,'2024-11-05','2024-11-05'),(13,6,12,0,'2024-11-05',NULL);
-/*!40000 ALTER TABLE `user_challenges` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Table structure for table `users`
---
 
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Giovanni','johan@gmail.com','$2y$10$c06HG2bhNeFAZO82.sgul.vI/SxOG/MOQsnfNyrY4ZKQ7zdK2NF.W','2024-11-05 18:55:42'),(2,'viviam','viviam@gmail.com','$2y$10$POKDpf0Oe/qVIhSwPIazhuTqlGiGVrrBQGDQ7vt39ruYuO34cH5Pi','2024-11-05 18:56:34'),(4,'madelaine','made@gmail.com','$2y$10$oauIs/xXtoMXvs2wfOWDy.HrUEuF5LT.kzb27pqzO07YMorLo43k6','2024-11-05 19:01:21'),(5,'Osiris','osiris@gmail.com','$2y$10$Yh.W7.vKRZ4ilMOq20E/muBNAdYF0iemxtWhCxvOviUUtc1wO7bOu','2024-11-05 20:40:51'),(6,'Justine','justine@gmail.com','$2y$10$aoaFwZU13PGGBQDyYBxM9eo2arLHELRCQ0vPVVPyMmstA76.FaGuC','2024-11-05 21:13:18');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping routines for database 'desafios_fitness'
---
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2024-11-05 16:17:58

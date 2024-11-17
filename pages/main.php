@@ -89,18 +89,97 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
                 </li>
 
                 <!-- Modal para mostrar detalles del desafío -->
-                <div class="modal" id="modal-<?php echo $challenge['id']; ?>">
-                    <div class="modal-content">
-                        <h2 class="text-lg font-bold mb-2 text-black"><?php echo htmlspecialchars($challenge['description']); ?></h2>
-                        <p class="text-black"><strong>Duración:</strong> <?php echo htmlspecialchars($challenge['duration']); ?> días</p>
-                        <p class="text-black"><strong>Objetivo:</strong> <?php echo htmlspecialchars($challenge['goal']); ?></p>
-                        <form action="../assets/completeChallenge.php" method="POST">
-                            <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
-                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">Completar Desafío</button>
-                        </form>
-                        <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4" onclick="closeModal(<?php echo $challenge['id']; ?>)">Cerrar</button>
-                    </div>
-                </div>
+                <!-- Modal para mostrar detalles del desafío -->
+                    <?php
+                        // Obtener el desafío actual desde la base de datos
+                        $challengeId = $challenge['id']; // Asumimos que el desafío ya está cargado en la variable $challenge
+                        $totalStages = $challenge['total_stages'];
+
+                        // Obtener las etapas del desafío
+                        $query = "SELECT * FROM stages WHERE challenge_id = $challengeId ORDER BY stage_num ASC";
+                        $result = mysqli_query($conn, $query);
+
+                        if ($result) {
+                            $stages = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                        } else {
+                            echo "Error al obtener las etapas del desafío.";
+                        }
+                        ?>
+
+                        <div class="modal" id="modal-<?php echo $challenge['id']; ?>">
+                            <div class="modal-content">
+                                <h2 class="text-lg font-bold mb-2 text-black"><?php echo htmlspecialchars($challenge['description']); ?></h2>
+                                <p class="text-black"><strong>Duración:</strong> <?php echo htmlspecialchars($challenge['duration']); ?> días</p>
+                                <p class="text-black"><strong>Objetivo:</strong> <?php echo htmlspecialchars($challenge['goal']); ?></p>
+                                
+                                <form id="challengeForm" action="../assets/completeChallenge.php" method="POST">
+                                    <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
+                                    <input type="hidden" name="current_stage" id="currentStage" value="1">
+                                    
+                                    <?php 
+                                    // Inicializamos las variables $stageNum y $totalStages fuera del bucle
+                                    $stageNum = 1; // Empezamos con la primera etapa
+
+                                    foreach ($stages as $stage) {
+                                        $stageNum = $stage['stage_num'];  // Asignamos el número de etapa de cada ciclo
+                                        $stageName = htmlspecialchars($stage['stage_name']);
+                                        $stageGoal = htmlspecialchars($stage['stage_goal']);
+                                        
+                                        echo "<div class='stage-info' id='stage-$stageNum' style='display: " . ($stageNum == 1 ? 'block' : 'none') . ";'>
+                                                <p class='text-black'><strong>Etapa:</strong> $stageNum / $totalStages: $stageName</p>
+                                                <p class='text-black'><strong>Objetivo:</strong> $stageGoal</p>
+                                            </div>";
+                                    }
+                                    ?>
+                                    
+                                    <!-- Botón de siguiente que cambia a completar en el último stage -->
+                                    <button type="button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4" id="nextButton">
+                                        <?php echo ($stageNum == $totalStages) ? 'Completar Desafío' : 'Siguiente'; ?>
+                                    </button>
+                                </form>
+
+                                <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4" onclick="closeModal(<?php echo $challenge['id']; ?>)">Cerrar</button>
+                            </div>
+                        </div>
+
+                        <script>
+                        // Cambiar el texto del botón a 'Completar' si estamos en el último stage
+                        document.addEventListener('DOMContentLoaded', function() {
+                            let totalStages = <?php echo $totalStages; ?>;
+                            let currentStage = parseInt(document.getElementById('currentStage').value);
+                            let button = document.getElementById('nextButton');
+                            let form = document.getElementById('challengeForm');
+
+                            // Si no es el último stage, actualizar el texto del botón
+                            if (currentStage < totalStages) {
+                                button.textContent = 'Siguiente';
+                            } else {
+                                button.textContent = 'Completar Desafío';
+                            }
+
+                            // Controlar el avance de etapa
+                            button.addEventListener('click', function(event) {
+                                if (currentStage < totalStages) {
+                                    // Avanzar al siguiente stage
+                                    currentStage++;
+                                    document.getElementById('currentStage').value = currentStage;
+                                    // Ocultar la etapa actual y mostrar la siguiente
+                                    document.getElementById('stage-' + (currentStage - 1)).style.display = 'none';
+                                    document.getElementById('stage-' + currentStage).style.display = 'block';
+
+                                    // Actualizar el texto del botón
+                                    if (currentStage === totalStages) {
+                                        button.textContent = 'Completar Desafío';
+                                    } else {
+                                        button.textContent = 'Siguiente';
+                                    }
+                                } else {
+                                    // Si estamos en la última etapa, enviar el formulario para completar el desafío
+                                    form.submit();
+                                }
+                            });
+                        });
+                        </script>
             <?php endforeach; ?>
         </ul>
     </div>
@@ -129,18 +208,39 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
                 </li>
 
                 <!-- Modal para mostrar detalles del desafío -->
-                <div class="modal" id="modal-<?php echo $challenge['id']; ?>">
-                    <div class="modal-content">
-                        <h2 class="text-lg font-bold mb-2 text-black"><?php echo htmlspecialchars($challenge['description']); ?></h2>
-                        <p class="text-black"><strong>Duración:</strong> <?php echo htmlspecialchars($challenge['duration']); ?> días</p>
-                        <p class="text-black"><strong>Objetivo:</strong> <?php echo htmlspecialchars($challenge['goal']); ?></p>
-                        <form action="../assets/selectChallenge.php" method="POST">
-                            <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
-                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">Unirse al Desafío</button>
-                        </form>
-                        <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4" onclick="closeModal(<?php echo $challenge['id']; ?>)">Cerrar</button>
+                <!-- Modal para mostrar detalles del desafío -->
+                    <div class="modal" id="modal-<?php echo $challenge['id']; ?>">
+                        <div class="modal-content">
+                            <h2 class="text-lg font-bold mb-2 text-black"><?php echo htmlspecialchars($challenge['description']); ?></h2>
+                            <p class="text-black"><strong>Duración:</strong> <?php echo htmlspecialchars($challenge['duration']); ?> días</p>
+                            <p class="text-black"><strong>Objetivo:</strong> <?php echo htmlspecialchars($challenge['goal']); ?></p>
+
+                            <!-- Imprimir las etapas -->
+                            <p class="text-black"><strong>Etapas:</strong></p>
+                            <ul>
+                                <?php 
+                                // Aquí va la consulta para obtener las etapas del desafío actual
+                                $stagesStmt = $conn->prepare("SELECT * FROM stages WHERE challenge_id = ?");
+                                $stagesStmt->bind_param("i", $challenge['id']);
+                                $stagesStmt->execute();
+                                $stagesResult = $stagesStmt->get_result();
+
+                                while ($stage = $stagesResult->fetch_assoc()): ?>
+                                    <li>
+                                        <strong>Etapa <?php echo htmlspecialchars($stage['stage_num']); ?>:</strong>
+                                        <?php echo htmlspecialchars($stage['stage_name']); ?> - 
+                                        <?php echo htmlspecialchars($stage['stage_goal']); ?>
+                                    </li>
+                                <?php endwhile; ?>
+                            </ul>
+
+                            <form action="../assets/selectChallenge.php" method="POST">
+                                <input type="hidden" name="challenge_id" value="<?php echo $challenge['id']; ?>">
+                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">Unirse al Desafío</button>
+                            </form>
+                            <button type="button" class="close-modal bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mt-4" onclick="closeModal(<?php echo $challenge['id']; ?>)">Cerrar</button>
+                        </div>
                     </div>
-                </div>
             <?php endforeach; ?>
         <?php else: ?>
             <li class="mb-2 p-2 bg-white rounded shadow">No hay desafíos disponibles en este momento.</li>
@@ -148,21 +248,58 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
     </ul>
 
     <h2 class="text-xl font-semibold mb-2 text-center">Crear Nuevo Desafío</h2>
-    <form id="addChallenge" action="../assets/addChallenge.php" method="POST" class="bg-white p-4 rounded shadow">
-        <div class="mb-4">
-            <label for="description" class="block text-gray-700">Descripción</label>
-            <input type="text" id="description" name="description" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Descripción del desafío">
-        </div>
-        <div class="mb-4">
-            <label for="duration" class="block text-gray-700">Duración (días)</label>
-            <input type="number" id="duration" name="duration" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Duración del desafío">
-        </div>
-        <div class="mb-4">
-            <label for="goal" class="block text-gray-700">Objetivo</label>
-            <input type="text" id="goal" name="goal" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Objetivo del desafío">
-        </div>
-        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded">Crear Desafío</button>
-    </form>
+        <form id="addChallenge" action="../assets/addChallenge.php" method="POST" class="bg-white p-4 rounded shadow">
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700">Titulo del Desafio</label>
+                <input type="text" id="description" name="description" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Titulo del desafío">
+            </div>
+            <div class="mb-4">
+                <label for="duration" class="block text-gray-700">Duración (días)</label>
+                <input type="number" id="duration" name="duration" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Duración del desafío">
+            </div>
+            <div class="mb-4">
+                <label for="goal" class="block text-gray-700">Descripción del Desafío:</label>
+                <input type="text" id="goal" name="goal" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Meta del desafío">
+            </div>
+
+            <!-- Agregar el challenge_id como campo oculto -->
+            <input type="hidden" name="challenge_id" value="<?php echo $challenge_id; ?>">
+
+            <select id="etapas" name="total_stages" class="mt-1 p-2 border border-gray-300 rounded w-full mb-4" required onchange="mostrarCamposEtapas()">
+                <option value="">Selecciona el número de etapas</option>
+                <option value="1">1 Etapa</option>
+                <option value="2">2 Etapas</option>
+                <option value="3">3 Etapas</option>
+            </select>
+
+            <!-- Contenedor de Campos de Etapas -->
+            <div id="etapasContainer"></div>
+
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded">Crear Desafío</button>
+        </form>
+
+        <script>
+            function mostrarCamposEtapas() {
+                const etapasContainer = document.getElementById('etapasContainer');
+                const etapasCount = document.getElementById('etapas').value;
+                
+                // Limpiar el contenedor de etapas antes de agregar nuevos campos
+                etapasContainer.innerHTML = '';
+                
+                // Crear campos dinámicamente para las etapas seleccionadas
+                for (let i = 1; i <= etapasCount; i++) {
+                    const etapaDiv = document.createElement('div');
+                    etapaDiv.classList.add('mb-4');
+                    etapaDiv.innerHTML = `
+                        <h3 class="font-bold text-lg text-gray-700">Etapa ${i}</h3>
+                        <label for="stages${i}" class="block text-gray-700">Título de la Etapa ${i}</label>
+                        <input type="text" id="stages${i}" name="stages[${i}][stage_name]" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Título de la etapa">
+                        <textarea id="descripcionEtapa${i}" name="stages[${i}][stage_goal]" required class="mt-1 p-2 border border-gray-300 rounded w-full" placeholder="Descripción de la etapa" maxlength="500"></textarea>
+                    `;
+                    etapasContainer.appendChild(etapaDiv);
+                }
+            }
+        </script>
 </div>
 
 </body>

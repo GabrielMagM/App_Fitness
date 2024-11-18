@@ -20,10 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ../pages/main.php'); // Redirige al dashboard
             exit();
         } else {
-            echo "Contraseña incorrecta.";
+            echo "<script>alert('Contraseña incorrecta.');</script>";
         }
     } else {
-        echo "Usuario no encontrado.";
+        echo "<script>
+                alert('Usuario no encontrado.');
+                window.location.href = '../pages/login.php'; // Cambia la URL si tu página de login es diferente
+              </script>";
     }
 }
 ?>

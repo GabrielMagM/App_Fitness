@@ -3,89 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Fitness</title>
+    <title>Rutinas de Fitness</title>
     <style>
-        #rutinas { margin-top: 20px; font-size: 18px; }
-        button {
-            margin: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #383940;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            color: white;
+        }
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .rutinas-lista {
+            list-style-type: none;
+            padding: 0;
+        }
+        .rutinas-lista li {
+            background-color: #2f3552;
+            color: white;
+            padding: 10px;
+            margin-bottom: 5px;
             cursor: pointer;
+            border-radius: 5px;
+        }
+        .rutinas-lista li:hover {
+            background-color: #45a049;
+        }
+        .descripcion {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            color: black;
+
         }
     </style>
 </head>
 <body>
-    <h1>Bienvenido a App Fitness</h1>
-    <h2>Rutinas recomendadas</h2>
+    <div class="container">
+        <h1>Informacion de Rutinas</h1>
+        <ul class="rutinas-lista">
+            <li onclick="mostrarDescripcion('Sentadillas')">Sentadillas</li>
+            <li onclick="mostrarDescripcion('LegPress')">LegPress</li>
+            <li onclick="mostrarDescripcion('LegExtension')">LegExtension</li>
+            <li onclick="mostrarDescripcion('FrontSquat')">FrontSquat</li>
+            <li onclick="mostrarDescripcion('ForwardLunges')">ForwardLunges</li>
+        </ul>
 
-    <!-- Botones para cambiar entre las rutinas -->
-    <button id="btnFuerza">Mostrar Rutinas de Fuerza</button>
-    <button id="btnCardio">Mostrar Rutinas de Cardio</button>
-
-    <div id="rutinas">Cargando rutinas...</div>
+        <div class="descripcion" id="descripcion">
+            <!-- La descripción se mostrará aquí -->
+            Selecciona una rutina para ver la descripción.
+        </div>
+    </div>
 
     <script>
-        // Variables para almacenar las rutinas
-        let rutinasFuerza = [];
-        let rutinasCardio = [];
+        // Función para obtener la descripción de la rutina desde el servidor
+        function mostrarDescripcion(tipo) {
+    fetch(`get_rutinas.php?tipo=${tipo}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);  // Verifica lo que se está recibiendo
+            const descripcionDiv = document.getElementById("descripcion");
 
-        // Función para obtener las rutinas
-        function obtenerRutinas() {
-            fetch('http://localhost/App_Fitness/zzzfolder/get_rutinas.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        document.getElementById('rutinas').innerHTML = `Error: ${data.message}`;
-                        return;
-                    }
-
-                    // Almacenar las rutinas de fuerza y cardio en variables
-                    rutinasFuerza = data.fuerza.rutinas;
-                    rutinasCardio = data.cardio.rutinas;
-                    
-                    // Mostrar las rutinas de fuerza por defecto (puedes cambiar este comportamiento)
-                    mostrarRutinas("fuerza");
-                })
-                .catch(error => {
-                    document.getElementById('rutinas').innerHTML = 'Error al obtener las rutinas.';
-                    console.error('Error:', error);
-                });
-        }
-
-        // Función para mostrar las rutinas según el tipo
-        function mostrarRutinas(tipo) {
-            const rutinasDiv = document.getElementById('rutinas');
-            let rutinasHtml = '';
-
-            if (tipo === "fuerza") {
-                rutinasHtml += `<h3>Fuerza</h3><ul>`;
-                rutinasFuerza.forEach(rutina => {
-                    rutinasHtml += `<li>${rutina}</li>`;
-                });
-                rutinasHtml += '</ul>';
-            } else if (tipo === "cardio") {
-                rutinasHtml += `<h3>Cardio</h3><ul>`;
-                rutinasCardio.forEach(rutina => {
-                    rutinasHtml += `<li>${rutina}</li>`;
-                });
-                rutinasHtml += '</ul>';
+            if (data.error) {
+                descripcionDiv.innerText = `Error: ${data.message}`;
+            } else {
+                // Accede a la propiedad "rutinas" dentro del objeto correspondiente al tipo
+                const descripcion = data[tipo] ? data[tipo].rutinas : 'Descripción no disponible';
+                descripcionDiv.innerText = descripcion;
             }
 
-            rutinasDiv.innerHTML = rutinasHtml;
-        }
-
-        // Funciones para cambiar entre las rutinas al hacer clic en los botones
-        document.getElementById('btnFuerza').addEventListener('click', function() {
-            mostrarRutinas("fuerza");
+            // Mostrar el contenedor de descripción
+            descripcionDiv.style.display = "block";
+        })
+        .catch(error => {
+            const descripcionDiv = document.getElementById("descripcion");
+            descripcionDiv.innerText = "Hubo un problema al obtener los datos.";
+            descripcionDiv.style.display = "block";
         });
+}
 
-        document.getElementById('btnCardio').addEventListener('click', function() {
-            mostrarRutinas("cardio");
-        });
-
-        // Llamar a la función obtenerRutinas para cargar los datos cuando la página se carga
-        obtenerRutinas();
     </script>
-
 </body>
 </html>

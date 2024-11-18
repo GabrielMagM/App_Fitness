@@ -7,8 +7,12 @@ class FitnessService
         $tipo = $request->tipo; // Extraer el campo 'tipo'
 
         $rutinas = [
-            "fuerza" => ["Sentadilla", "Press banca", "Peso muerto"],
-            "cardio" => ["Correr", "Bicicleta", "Saltar la cuerda"],
+            "Sentadillas" => ["Ejercicio compuesto que trabaja principalmente los cuadriceps, pero tambien gluteos y core."],
+            "LegPress" => ["Permite cargar mas peso y aislar los cuadriceps al ajustar la posicion de los pies."],
+            "LegExtension" => ["Ejercicio aislado ideal para focalizar el trabajo en los cuadriceps."],
+            "FrontSquat" => ["Variante de la sentadilla donde el peso se coloca al frente, enfocandose mas en los cuadriceps."],
+            "ForwardLunges" => ["Trabaja cuadriceps y gluteos, mejorando tambien el equilibrio."]
+            
         ];
 
         if (!isset($rutinas[$tipo])) {

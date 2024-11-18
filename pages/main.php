@@ -93,7 +93,7 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
                     <?php
                         // Obtener el desafío actual desde la base de datos
                         $challengeId = $challenge['id']; // Asumimos que el desafío ya está cargado en la variable $challenge
-                        $totalStages = $challenge['t_stages'];
+                        $totalStages = $challenge['total_stages'];
 
                         // Obtener las etapas del desafío
                         $query = "SELECT * FROM stages WHERE challenge_id = $challengeId ORDER BY stage_num ASC";
@@ -190,6 +190,9 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
     <div class="flex justify-between items-center mb-4">
         <h1 class="text-2xl font-bold">Dashboard - <?php echo htmlspecialchars($user['name']); ?></h1>
         <div class="flex items-center">
+            <a href="activities.php" class="text-gray-700 hover:text-green-500 mr-4" title="Actividades Físicas">
+                <i class="fas fa-dumbbell fa-lg"></i>
+            </a>
             <a href="stats.php" class="text-gray-700 hover:text-blue-500 mr-4" title="Ver Estadísticas">
                 <i class="fas fa-chart-line fa-lg"></i>
             </a>
@@ -265,7 +268,7 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
             <!-- Agregar el challenge_id como campo oculto -->
             <input type="hidden" name="challenge_id" value="<?php echo $challenge_id; ?>">
 
-            <select id="etapas" name="t_stages" class="mt-1 p-2 border border-gray-300 rounded w-full mb-4" required onchange="mostrarCamposEtapas()">
+            <select id="etapas" name="total_stages" class="mt-1 p-2 border border-gray-300 rounded w-full mb-4" required onchange="mostrarCamposEtapas()">
                 <option value="">Selecciona el número de etapas</option>
                 <option value="1">1 Etapa</option>
                 <option value="2">2 Etapas</option>

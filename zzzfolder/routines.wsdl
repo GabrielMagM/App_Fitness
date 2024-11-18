@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://localhost/App_Fitness/zzzfolder/routines.wsdl"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             name="FitnessService"
+             targetNamespace="http://localhost/App_Fitness/zzzfolder/routines.wsdl">
+    
+    <types>
+        <xsd:schema targetNamespace="http://localhost/App_Fitness/zzzfolder/routines.wsdl">
+            <xsd:element name="obtenerRutinasRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="tipo" type="xsd:string" />
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            
+            <xsd:element name="obtenerRutinasResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="rutinas" type="xsd:string" maxOccurs="unbounded" />
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </types>
+
+    <message name="obtenerRutinasRequest">
+        <part name="parameters" element="tns:obtenerRutinasRequest" />
+    </message>
+    <message name="obtenerRutinasResponse">
+        <part name="parameters" element="tns:obtenerRutinasResponse" />
+    </message>
+
+    <portType name="FitnessPortType">
+        <operation name="obtenerRutinas">
+            <input message="tns:obtenerRutinasRequest" />
+            <output message="tns:obtenerRutinasResponse" />
+        </operation>
+    </portType>
+
+    <binding name="FitnessServiceBinding" type="tns:FitnessPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="obtenerRutinas">
+            <soap:operation soapAction="http://localhost/App_Fitness/zzzfolder/obtenerRutinas" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+    </binding>
+
+    <service name="FitnessService">
+        <port name="FitnessPort" binding="tns:FitnessServiceBinding">
+            <soap:address location="http://localhost/App_Fitness/zzzfolder/server.php" />
+        </port>
+    </service>
+</definitions>

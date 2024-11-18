@@ -15,7 +15,7 @@ CREATE TABLE `challenges` (
   `description` text NOT NULL, -- Título del Desafío
   `duration` int NOT NULL,
   `goal` text NOT NULL, -- Descripción del Desafío
-  `total_stages` int NOT NULL, -- Número total de etapas
+  `t_stages` INT NOT NULL,  -- Total de etapas del desafío
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
@@ -37,20 +37,21 @@ CREATE TABLE `stages` (
   CONSTRAINT `stages_ibfk_2` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
 CREATE TABLE `user_challenges` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `challenge_id` int NOT NULL,
-  `completed` tinyint DEFAULT '0',
-  `start_date` date DEFAULT NULL,
-  `end_date` date DEFAULT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `challenge_id` INT NOT NULL,
+  `completed` TINYINT DEFAULT '0',  -- 0 = en progreso, 1 = completado
+  `start_date` DATE DEFAULT NULL,  -- Fecha de inicio
+  `end_date` DATE DEFAULT NULL,  -- Fecha de finalización
+  `current_stage` INT DEFAULT 1,  -- Etapa actual del usuario
+  `total_stage` INT NOT NULL,  -- Total de etapas del desafío
   PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_challenge` (`user_id`, `challenge_id`),
   KEY `user_id` (`user_id`),
   KEY `challenge_id` (`challenge_id`),
   CONSTRAINT `user_challenges_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `user_challenges_ibfk_2` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`id`),
-  CONSTRAINT `unique_user_challenge` UNIQUE (`user_id`, `challenge_id`)
+  CONSTRAINT `user_challenges_ibfk_2` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
@@ -65,28 +66,16 @@ CREATE TABLE `user_challenges` (
 
 
 
+CREATE TABLE activities (
+    id int NOT NULL AUTO_INCREMENT,                -- Identificador único para cada actividad
+    user_id INT NOT NULL,                 -- Relación con el usuario
+    activity_type VARCHAR(50) NOT NULL,  -- Tipo de actividad (correr, trotar, etc.)
+    duration TIME NOT NULL,               -- Duración de la actividad
+    activity_date DATE NOT NULL DEFAULT CURRENT_DATE, -- Fecha en que se realizó la actividad
+    calories_burned int NOT NULL,             -- Opcional: calorías quemadas, si decides calcularlo
+    PRIMARY KEY (`id`),
+    KEY `user_id` (`user_id`),                  
+    CONSTRAINT `activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+);ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
-
-
-
-
-
-
-
-
-
-CREATE TABLE `completed_stages` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `challenge_id` int NOT NULL,
-  `stage_num` int NOT NULL,
-  `completed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `challenge_id` (`challenge_id`),
-  KEY `stage_num` (`stage_num`),
-  CONSTRAINT `completed_stages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `completed_stages_ibfk_2` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`id`),
-  CONSTRAINT `completed_stages_ibfk_3` FOREIGN KEY (`user_id`, `challenge_id`, `stage_num`) REFERENCES `stages` (`user_id`, `challenge_id`, `stage_num`)  -- Relación combinada
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

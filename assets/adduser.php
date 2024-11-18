@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_id = $conn->insert_id;
 
         // Inserta desafíos por defecto para el nuevo usuario, incluyendo total_stages
-        $stmt = $conn->prepare("INSERT INTO challenges (user_id, description, duration, goal, total_stages) VALUES 
+        $stmt = $conn->prepare("INSERT INTO challenges (user_id, description, duration, goal, t_stages) VALUES 
         (?, 'Desafío de 5km al día', 30, 'Correr 5 km diariamente', 2),
         (?, 'Desafío de abdominales', 14, 'Hacer 50 abdominales diarias', 2),
         (?, 'Desafío de agua', 7, 'Beber 2 litros de agua diarios', 2)");

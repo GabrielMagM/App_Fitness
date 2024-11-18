@@ -11,12 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST['description'];  // Descripción del desafío
     $duration = $_POST['duration'];       // Duración del desafío
     $goal = $_POST['goal'];               // Objetivo del desafío
-    $t_stages = $_POST['t_stages']; // Total de etapas
-    
+    $total_stages = $_POST['total_stages']; // Total de etapas
+
     // Preparar la consulta SQL para insertar el nuevo desafío en la tabla challenges
-    $stmt = $conn->prepare("INSERT INTO challenges (user_id, description, duration, goal, t_stages) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO challenges (user_id, description, duration, goal, total_stages) VALUES (?, ?, ?, ?, ?)");
     $user_id = $_SESSION['user_id']; // Obtener el ID del usuario desde la sesión
-    $stmt->bind_param("isisii", $user_id, $description, $duration, $goal, $t_stages);
+    $stmt->bind_param("isisi", $user_id, $description, $duration, $goal, $total_stages);
 
     // Ejecutar la consulta para insertar el desafío
     if ($stmt->execute()) {

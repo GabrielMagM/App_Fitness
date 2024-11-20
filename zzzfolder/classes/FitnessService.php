@@ -2,23 +2,36 @@
 
 class FitnessService
 {
-        public function obtenerRutinas($request)
+    public function obtenerRutinas($request)
     {
         $tipo = $request->tipo; // Extraer el campo 'tipo'
 
+        // Definir rutinas con estructura compleja
         $rutinas = [
-            "Sentadillas" => ["Ejercicio compuesto que trabaja principalmente los cuadriceps, pero tambien gluteos y core."],
-            "LegPress" => ["Permite cargar mas peso y aislar los cuadriceps al ajustar la posicion de los pies."],
-            "LegExtension" => ["Ejercicio aislado ideal para focalizar el trabajo en los cuadriceps."],
-            "FrontSquat" => ["Variante de la sentadilla donde el peso se coloca al frente, enfocandose mas en los cuadriceps."],
-            "ForwardLunges" => ["Trabaja cuadriceps y gluteos, mejorando tambien el equilibrio."]
-            
+            "Sentadillas" => [
+                [
+                    "nombre" => "Sentadillas",
+                    "descripcion" => "Ejercicio compuesto que trabaja principalmente los cuadriceps, pero también glúteos y core.",
+                ],
+            ],
+            "Abdominales" => [
+                [
+                    "nombre" => "Abdominales",
+                    "descripcion" => "Ejercicio compuesto que trabaja principalmente el core.",
+                ],
+            ],
+            "Flexiones" => [
+                [
+                    "nombre" => "Flexiones",
+                    "descripcion" => "Ejercicio compuesto que los brazos, pecho y triceps.",
+                ],
+            ],
         ];
 
         if (!isset($rutinas[$tipo])) {
             throw new SoapFault("Server", "El tipo de rutina '{$tipo}' no está disponible.");
         }
 
-        return $rutinas[$tipo];
+        return ["rutinas" => $rutinas[$tipo]];
     }
 }

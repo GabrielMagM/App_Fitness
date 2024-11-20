@@ -2,40 +2,27 @@
 try {
     $client = new SoapClient("http://localhost/App_Fitness/zzzfolder/routines.wsdl");
 
-    // Solicitar rutinas del tipo "Sentadillas"
+    // Solicitar rutinas de diferentes tipos
     $requestSentadillas = new stdClass();
     $requestSentadillas->tipo = "Sentadillas";
     $responseSentadillas = $client->obtenerRutinas($requestSentadillas);
 
-    // Solicitar rutinas del tipo "LegPress"
-    $requestLegPress = new stdClass();
-    $requestLegPress->tipo = "LegPress";
-    $responseLegPress = $client->obtenerRutinas($requestLegPress);
+    $requestAbdominales = new stdClass();
+    $requestAbdominales->tipo = "Abdominales";
+    $responseAbdominales = $client->obtenerRutinas($requestAbdominales);
 
-    // Solicitar rutinas del tipo "LegExtension"
-    $requestLegExtension = new stdClass();
-    $requestLegExtension->tipo = "LegExtension";
-    $responseLegExtension = $client->obtenerRutinas($requestLegExtension);
-
-    // Solicitar rutinas del tipo "FrontSquat"
-    $requestFrontSquat = new stdClass();
-    $requestFrontSquat->tipo = "FrontSquat";
-    $responseFrontSquat = $client->obtenerRutinas($requestFrontSquat);
-
-    // Solicitar rutinas del tipo "ForwardLunges"
-    $requestForwardLunges = new stdClass();
-    $requestForwardLunges->tipo = "ForwardLunges";
-    $responseForwardLunges = $client->obtenerRutinas($requestForwardLunges);
+    $requestFlexiones = new stdClass();
+    $requestFlexiones->tipo = "Flexiones";
+    $responseFlexiones = $client->obtenerRutinas($requestFlexiones);
 
     // Combinar las respuestas correctamente
     $result = [
         "Sentadillas" => $responseSentadillas,
-        "LegPress" => $responseLegPress,
-        "LegExtension" => $responseLegExtension,
-        "FrontSquat" => $responseFrontSquat, // Corregido
-        "ForwardLunges" => $responseForwardLunges
+        "Abdominales" => $responseAbdominales,
+        "Flexiones" => $responseFlexiones
     ];
 
+    // Retornar como JSON
     echo json_encode($result, JSON_PRETTY_PRINT);
 } catch (SoapFault $e) {
     // Manejo de errores

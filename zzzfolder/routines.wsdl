@@ -8,13 +8,13 @@
     
     <types>
         <xsd:schema targetNamespace="http://localhost/App_Fitness/zzzfolder/routines.wsdl">
-            <!-- Definir un tipo complejo para cada rutina -->
+                        <!-- Definir un tipo complejo para cada rutina -->
             <xsd:complexType name="Rutina">
                 <xsd:sequence>
                     <xsd:element name="nombre" type="xsd:string" />
-                    <xsd:element name="descripcion" type="xsd:string" />
                 </xsd:sequence>
             </xsd:complexType>
+            
             
             <xsd:element name="obtenerRutinasRequest">
                 <xsd:complexType>
@@ -28,6 +28,7 @@
                 <xsd:complexType>
                     <xsd:sequence>
                         <!-- Cambiar a un tipo complejo (Rutina) -->
+                                      <!-- Cambiar a un tipo complejo (Rutina) -->
                         <xsd:element name="rutinas" type="tns:Rutina" maxOccurs="unbounded" />
                     </xsd:sequence>
                 </xsd:complexType>

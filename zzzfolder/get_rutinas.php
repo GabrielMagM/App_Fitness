@@ -22,6 +22,8 @@ try {
         "Flexiones" => $responseFlexiones
     ];
 
+    header('Content-Type: application/json');
+
     // Retornar como JSON
     echo json_encode($result, JSON_PRETTY_PRINT);
 } catch (SoapFault $e) {

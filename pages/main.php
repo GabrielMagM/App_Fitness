@@ -268,7 +268,7 @@ $challenges = $userChallengesResult->fetch_all(MYSQLI_ASSOC);
             <!-- Agregar el challenge_id como campo oculto -->
             <input type="hidden" name="challenge_id" value="<?php echo $challenge_id; ?>">
 
-            <select id="etapas" name="total_stages" class="mt-1 p-2 border border-gray-300 rounded w-full mb-4" required onchange="mostrarCamposEtapas()">
+            <select id="etapas" name="t_stages" class="mt-1 p-2 border border-gray-300 rounded w-full mb-4" required onchange="mostrarCamposEtapas()">
                 <option value="">Selecciona el número de etapas</option>
                 <option value="1">1 Etapa</option>
                 <option value="2">2 Etapas</option>
